@@ -1,0 +1,26 @@
+-- createBookList.sql
+INSERT INTO BOOKS
+            (id,
+             name,
+             description,
+             full_text,
+             views,
+             author_id)
+VALUES      (1,
+             'Zaphod Beeblebrox',
+             'zaphod@galaxy',
+             'zaphod@mmmmmmmmmmmmmmmm',
+             3,
+             1),
+            (2,
+             'Zeblebrox',
+             'zapaxy',
+             'zapmmmmmmmmmm',
+             5,
+             1),
+             (3,
+             'Zrox',
+             'zaxy',
+             'zammmm',
+             8,
+             1);
