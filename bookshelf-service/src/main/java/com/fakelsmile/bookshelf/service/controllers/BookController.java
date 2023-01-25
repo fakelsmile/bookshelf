@@ -9,13 +9,16 @@ import com.fakelsmile.bookshelf.service.models.entity.BookEntity;
 import com.fakelsmile.bookshelf.service.services.BookService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 /**
  * Controller for books.
  */
+@Validated
 @RestController
 @RequestMapping(path = "/api/v1/books")
 @RequiredArgsConstructor
@@ -42,7 +45,7 @@ public class BookController {
      */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    BookDto createBook(@RequestBody BookSaveUpdateDto bookSaveUpdateDto) {
+    BookDto createBook(@Valid @RequestBody BookSaveUpdateDto bookSaveUpdateDto) {
         BookEntity bookEntity = mapper.toEntity(bookSaveUpdateDto);
         bookEntity = service.saveBook(bookEntity);
         return mapper.toDto(bookEntity);
@@ -70,7 +73,7 @@ public class BookController {
      * @throws BookNotFoundException if the book is not found
      */
     @PutMapping("/{id}")
-    BookDto updateBook(@RequestBody BookSaveUpdateDto bookSaveUpdateDto, @PathVariable Long id) throws BookNotFoundException {
+    BookDto updateBook(@Valid @RequestBody BookSaveUpdateDto bookSaveUpdateDto, @PathVariable Long id) throws BookNotFoundException {
         BookEntity bookEntity = mapper.toEntity(bookSaveUpdateDto);
         bookEntity = service.updateBook(id, bookEntity);
         return mapper.toDto(bookEntity);

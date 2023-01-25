@@ -23,6 +23,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import java.util.List;
 
 import static com.fakelsmile.bookshelf.service.TestUtil.asJsonString;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -107,10 +108,9 @@ public class BookControllerTest {
         String jsonResult = result.getResponse().getContentAsString();
         List<BookListDto> actual = TestUtil.objectMapper.readValue(jsonResult, new TypeReference<List<BookListDto>>() { });
 
-        Assertions.assertEquals(expected, actual);
+        assertEquals(expected, actual);
         verify(bookService).getAllBooks();
         verify(bookMapper).toListDto(bookEntityList);
-
     }
 
     @DisplayName("JUnit test for addBook method")
@@ -138,10 +138,67 @@ public class BookControllerTest {
         String jsonResult = result.getResponse().getContentAsString();
         BookDto actual = TestUtil.objectMapper.readValue(jsonResult, BookDto.class);
 
-        Assertions.assertEquals(expected, actual);
+        assertEquals(expected, actual);
         verify(bookMapper).toEntity(bookSaveUpdateDto);
         verify(bookService).saveBook(bookEntity);
         verify(bookMapper).toDto(savedBookEntity);
+    }
+
+    @DisplayName("Should return the HTTP status code bad request (400) if Name is null")
+    @Test
+    void addBookWithNameIsNullTest() throws Exception {
+        BookDto expected = new BookDto();
+        expected.setId(1L);
+        expected.setName(null);
+        expected.setDescription("Fadatare");
+        expected.setFullText("ramesh@gmail.com");
+        expected.setViews(7);
+
+        mvc.perform(MockMvcRequestBuilders
+                        .post("/api/v1/books")
+                        .content(asJsonString(expected))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+    }
+
+    @DisplayName("Should return the HTTP status code bad request (400) if Description is null")
+    @Test
+    void addBookWithDescriptionIsNullTest() throws Exception {
+        BookDto expected = new BookDto();
+        expected.setId(1L);
+        expected.setName("Ramesh");
+        expected.setDescription(null);
+        expected.setFullText("ramesh@gmail.com");
+        expected.setViews(7);
+
+        mvc.perform(MockMvcRequestBuilders
+                        .post("/api/v1/books")
+                        .content(asJsonString(expected))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+    }
+
+    @DisplayName("Should return the HTTP status code bad request (400) if FullText is null")
+    @Test
+    void addBookWithFullTextIsNullTest() throws Exception {
+        BookDto expected = new BookDto();
+        expected.setId(1L);
+        expected.setName("Ramesh");
+        expected.setDescription("Fadatare");
+        expected.setFullText(null);
+        expected.setViews(7);
+
+        mvc.perform(MockMvcRequestBuilders
+                        .post("/api/v1/books")
+                        .content(asJsonString(expected))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andReturn();
     }
 
     @DisplayName("JUnit test for getBook method")
@@ -175,10 +232,9 @@ public class BookControllerTest {
         String jsonResult = result.getResponse().getContentAsString();
         BookDto actual = TestUtil.objectMapper.readValue(jsonResult, BookDto.class);
 
-        Assertions.assertEquals(expected, actual);
+        assertEquals(expected, actual);
         verify(bookService).getBook(bookEntity.getId());
         verify(bookMapper).toDto(bookEntity);
-
     }
 
     @DisplayName("JUnit test for updateBook method")
@@ -206,7 +262,7 @@ public class BookControllerTest {
         String jsonResult = result.getResponse().getContentAsString();
         BookDto actual = TestUtil.objectMapper.readValue(jsonResult, BookDto.class);
 
-        Assertions.assertEquals(expected, actual);
+        assertEquals(expected, actual);
         verify(bookMapper).toEntity(bookSaveUpdateDto);
         verify(bookService).updateBook(bookEntity.getId(), bookEntity);
         verify(bookMapper).toDto(savedBookEntity);
@@ -226,6 +282,5 @@ public class BookControllerTest {
                 .andExpect(status().isOk());
 
         verify(bookService).deleteBook(bookId);
-
     }
 }

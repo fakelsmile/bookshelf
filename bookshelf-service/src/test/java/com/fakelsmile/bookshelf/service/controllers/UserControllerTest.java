@@ -61,7 +61,6 @@ public class UserControllerTest {
                 .password("Fadatare")
                 .role(UserRole.USER)
                 .build();
-
     }
 
     @AfterEach
@@ -90,7 +89,6 @@ public class UserControllerTest {
         assertEquals(expected, actual);
         verify(userService).getAllUsers();
         verify(userMapper).toDto(userEntity);
-
     }
 
     @DisplayName("JUnit test for addUser method")
@@ -124,6 +122,63 @@ public class UserControllerTest {
         verify(userMapper).toDto(savedUserEntity);
     }
 
+    @DisplayName("Should return the HTTP status code bad request (400) if Name is null")
+    @Test
+    void addUserWithNameIsNullTest() throws Exception {
+        UserDto expected = new UserDto();
+        expected.setId(1L);
+        expected.setName(null);
+        expected.setEmail("ramesh@gmail.com");
+        expected.setPassword("Fadatare");
+        expected.setRole(UserRole.USER);
+
+        mvc.perform(MockMvcRequestBuilders
+                        .post("/api/v1/users")
+                        .content(asJsonString(expected))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+    }
+
+    @DisplayName("Should return the HTTP status code bad request (400) if Email is null")
+    @Test
+    void addUserWithEmailIsNullTest() throws Exception {
+        UserDto expected = new UserDto();
+        expected.setId(1L);
+        expected.setName("Ramesh");
+        expected.setEmail(null);
+        expected.setPassword("Fadatare");
+        expected.setRole(UserRole.USER);
+
+        mvc.perform(MockMvcRequestBuilders
+                        .post("/api/v1/users")
+                        .content(asJsonString(expected))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+    }
+
+    @DisplayName("Should return the HTTP status code bad request (400) if Password is null")
+    @Test
+    void addUserWithPasswordIsNullTest() throws Exception {
+        UserDto expected = new UserDto();
+        expected.setId(1L);
+        expected.setName("Ramesh");
+        expected.setEmail("ramesh@gmail.com");
+        expected.setPassword(null);
+        expected.setRole(UserRole.USER);
+
+        mvc.perform(MockMvcRequestBuilders
+                        .post("/api/v1/users")
+                        .content(asJsonString(expected))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+    }
+
     @DisplayName("JUnit test for getUser method")
     @Test
     public void getUserTest() throws Exception {
@@ -151,7 +206,6 @@ public class UserControllerTest {
         assertEquals(expected, actual);
         verify(userService).getUser(userEntity.getId());
         verify(userMapper).toDto(userEntity);
-
     }
 
     @DisplayName("JUnit test for updateUser method")

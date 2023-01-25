@@ -7,14 +7,17 @@ import com.fakelsmile.bookshelf.service.models.entity.UserEntity;
 import com.fakelsmile.bookshelf.service.services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 import java.util.stream.Collectors;
 
 /**
  * Controller for users.
  */
+@Validated
 @RestController
 @RequestMapping(path = "/api/v1/users")
 @RequiredArgsConstructor
@@ -41,7 +44,7 @@ public class UserController {
      */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    UserDto createUser(@RequestBody UserDto userDto) {
+    UserDto createUser(@Valid @RequestBody UserDto userDto) {
         UserEntity userEntity = mapper.toEntity(userDto);
         userEntity = service.saveUser(userEntity);
         return mapper.toDto(userEntity);
@@ -69,7 +72,7 @@ public class UserController {
      * @throws UserNotFoundException if the user is not found
      */
     @PutMapping("/{id}")
-    UserDto updateUser(@RequestBody UserDto userDto, @PathVariable Long id) throws UserNotFoundException {
+    UserDto updateUser(@Valid @RequestBody UserDto userDto, @PathVariable Long id) throws UserNotFoundException {
         UserEntity userEntity = mapper.toEntity(userDto);
         userEntity = service.updateUser(id, userEntity);
         return mapper.toDto(userEntity);
