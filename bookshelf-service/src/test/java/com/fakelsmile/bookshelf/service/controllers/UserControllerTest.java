@@ -1,6 +1,8 @@
 package com.fakelsmile.bookshelf.service.controllers;
 
 import com.fakelsmile.bookshelf.service.TestUtil;
+import com.fakelsmile.bookshelf.service.handlers.ErrorDto;
+import com.fakelsmile.bookshelf.service.handlers.ErrorListResponse;
 import com.fakelsmile.bookshelf.service.mappers.UserMapper;
 import com.fakelsmile.bookshelf.service.models.UserRole;
 import com.fakelsmile.bookshelf.service.models.dto.UserDto;
@@ -84,7 +86,7 @@ public class UserControllerTest {
                 .andReturn();
 
         String jsonResult = result.getResponse().getContentAsString();
-        List<UserDto> actual = TestUtil.objectMapper.readValue(jsonResult, new TypeReference<List<UserDto>>() {});
+        List<UserDto> actual = TestUtil.objectMapper.readValue(jsonResult, new TypeReference<>() {});
 
         assertEquals(expected, actual);
         verify(userService).getAllUsers();
@@ -132,13 +134,20 @@ public class UserControllerTest {
         expected.setPassword("Fadatare");
         expected.setRole(UserRole.USER);
 
-        mvc.perform(MockMvcRequestBuilders
+        ErrorDto errorDto = new ErrorDto("name", "Name cannot be empty");
+        ErrorListResponse error = new ErrorListResponse(List.of(errorDto));
+
+        MvcResult result = mvc.perform(MockMvcRequestBuilders
                         .post("/api/v1/users")
                         .content(asJsonString(expected))
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andReturn();
+
+        String jsonResult = result.getResponse().getContentAsString();
+        ErrorListResponse actual = TestUtil.objectMapper.readValue(jsonResult, ErrorListResponse.class);
+        assertEquals(error, actual);
     }
 
     @DisplayName("Should return the HTTP status code bad request (400) if Email is null")
@@ -151,13 +160,46 @@ public class UserControllerTest {
         expected.setPassword("Fadatare");
         expected.setRole(UserRole.USER);
 
-        mvc.perform(MockMvcRequestBuilders
+        ErrorDto errorDto = new ErrorDto("email", "Email cannot be empty");
+        ErrorListResponse error = new ErrorListResponse(List.of(errorDto));
+
+        MvcResult result = mvc.perform(MockMvcRequestBuilders
                         .post("/api/v1/users")
                         .content(asJsonString(expected))
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andReturn();
+
+        String jsonResult = result.getResponse().getContentAsString();
+        ErrorListResponse actual = TestUtil.objectMapper.readValue(jsonResult, ErrorListResponse.class);
+        assertEquals(error, actual);
+    }
+
+    @DisplayName("Should return the HTTP status code bad request (400) if Email is not valid")
+    @Test
+    void addUserWithEmailNotValidTest() throws Exception {
+        UserDto expected = new UserDto();
+        expected.setId(1L);
+        expected.setName("Ramesh");
+        expected.setEmail("rameshgmail.com");
+        expected.setPassword("Fadatare");
+        expected.setRole(UserRole.USER);
+
+        ErrorDto errorDto = new ErrorDto("email", "Email should be valid");
+        ErrorListResponse error = new ErrorListResponse(List.of(errorDto));
+
+        MvcResult result = mvc.perform(MockMvcRequestBuilders
+                        .post("/api/v1/users")
+                        .content(asJsonString(expected))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+
+        String jsonResult = result.getResponse().getContentAsString();
+        ErrorListResponse actual = TestUtil.objectMapper.readValue(jsonResult, ErrorListResponse.class);
+        assertEquals(error, actual);
     }
 
     @DisplayName("Should return the HTTP status code bad request (400) if Password is null")
@@ -170,13 +212,20 @@ public class UserControllerTest {
         expected.setPassword(null);
         expected.setRole(UserRole.USER);
 
-        mvc.perform(MockMvcRequestBuilders
+        ErrorDto errorDto = new ErrorDto("password", "Password cannot be empty");
+        ErrorListResponse error = new ErrorListResponse(List.of(errorDto));
+
+        MvcResult result = mvc.perform(MockMvcRequestBuilders
                         .post("/api/v1/users")
                         .content(asJsonString(expected))
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andReturn();
+
+        String jsonResult = result.getResponse().getContentAsString();
+        ErrorListResponse actual = TestUtil.objectMapper.readValue(jsonResult, ErrorListResponse.class);
+        assertEquals(error, actual);
     }
 
     @DisplayName("JUnit test for getUser method")
@@ -253,6 +302,5 @@ public class UserControllerTest {
                 .andExpect(status().isOk());
 
         verify(userService).deleteUser(userId);
-
     }
 }

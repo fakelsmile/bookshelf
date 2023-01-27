@@ -1,6 +1,8 @@
 package com.fakelsmile.bookshelf.service.controllers;
 
 import com.fakelsmile.bookshelf.service.TestUtil;
+import com.fakelsmile.bookshelf.service.handlers.ErrorDto;
+import com.fakelsmile.bookshelf.service.handlers.ErrorListResponse;
 import com.fakelsmile.bookshelf.service.mappers.BookMapper;
 import com.fakelsmile.bookshelf.service.models.dto.BookDto;
 import com.fakelsmile.bookshelf.service.models.dto.BookListDto;
@@ -104,9 +106,8 @@ public class BookControllerTest {
                 .andExpect(status().isOk())
                 .andReturn();
 
-
         String jsonResult = result.getResponse().getContentAsString();
-        List<BookListDto> actual = TestUtil.objectMapper.readValue(jsonResult, new TypeReference<List<BookListDto>>() { });
+        List<BookListDto> actual = TestUtil.objectMapper.readValue(jsonResult, new TypeReference<>() { });
 
         assertEquals(expected, actual);
         verify(bookService).getAllBooks();
@@ -154,13 +155,20 @@ public class BookControllerTest {
         expected.setFullText("ramesh@gmail.com");
         expected.setViews(7);
 
-        mvc.perform(MockMvcRequestBuilders
+        ErrorDto errorDto = new ErrorDto("name", "Name cannot be empty");
+        ErrorListResponse error = new ErrorListResponse(List.of(errorDto));
+
+        MvcResult result = mvc.perform(MockMvcRequestBuilders
                         .post("/api/v1/books")
                         .content(asJsonString(expected))
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andReturn();
+
+        String jsonResult = result.getResponse().getContentAsString();
+        ErrorListResponse actual = TestUtil.objectMapper.readValue(jsonResult, ErrorListResponse.class);
+        assertEquals(error, actual);
     }
 
     @DisplayName("Should return the HTTP status code bad request (400) if Description is null")
@@ -173,13 +181,20 @@ public class BookControllerTest {
         expected.setFullText("ramesh@gmail.com");
         expected.setViews(7);
 
-        mvc.perform(MockMvcRequestBuilders
+        ErrorDto errorDto = new ErrorDto("description", "Description cannot be empty");
+        ErrorListResponse error = new ErrorListResponse(List.of(errorDto));
+
+        MvcResult result = mvc.perform(MockMvcRequestBuilders
                         .post("/api/v1/books")
                         .content(asJsonString(expected))
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andReturn();
+
+        String jsonResult = result.getResponse().getContentAsString();
+        ErrorListResponse actual = TestUtil.objectMapper.readValue(jsonResult, ErrorListResponse.class);
+        assertEquals(error, actual);
     }
 
     @DisplayName("Should return the HTTP status code bad request (400) if FullText is null")
@@ -192,13 +207,20 @@ public class BookControllerTest {
         expected.setFullText(null);
         expected.setViews(7);
 
-        mvc.perform(MockMvcRequestBuilders
+        ErrorDto errorDto = new ErrorDto("fullText", "FullText cannot be empty");
+        ErrorListResponse error = new ErrorListResponse(List.of(errorDto));
+
+        MvcResult result = mvc.perform(MockMvcRequestBuilders
                         .post("/api/v1/books")
                         .content(asJsonString(expected))
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andReturn();
+
+        String jsonResult = result.getResponse().getContentAsString();
+        ErrorListResponse actual = TestUtil.objectMapper.readValue(jsonResult, ErrorListResponse.class);
+        assertEquals(error, actual);
     }
 
     @DisplayName("JUnit test for getBook method")
@@ -227,7 +249,6 @@ public class BookControllerTest {
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn();
-
 
         String jsonResult = result.getResponse().getContentAsString();
         BookDto actual = TestUtil.objectMapper.readValue(jsonResult, BookDto.class);
